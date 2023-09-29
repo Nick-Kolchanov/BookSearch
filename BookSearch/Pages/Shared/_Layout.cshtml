@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BookSearch</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BookSearch.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="p-3 bg-dark text-white">
+        <div class="container">
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <a asp-page="/Index" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                    Книгопоиск
+                </a>
+
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a asp-page="Index" class="nav-link px-2 text-secondary">Главная</a></li>
+                    <li><a asp-page="Collections" class="nav-link px-2 text-white">Подборки</a></li>
+                </ul>
+
+                <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" asp-page="SearchBook">
+                    <input type="search" class="form-control form-control-dark" placeholder="Поиск..." aria-label="Search">
+                </form>
+
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <div class="dropdown text-end">
+                        <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false" style="">
+                            <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                        </a>
+                        <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1" style="">
+                            <li><a class="dropdown-item" asp-page="Profile">Профиль</a></li>
+                            <li><a class="dropdown-item" href="#">Настройки</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" asp-page="LoginPage" asp-page-handler="Logout">Выйти</a></li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-end">
+                        <a class="btn btn-outline-light me-2" asp-page="LoginPage">Войти</a>
+                        <a class="btn btn-warning" asp-page="RegisterPage">Зарегистрироваться</a>
+                        <a class="btn" asp-page="LoginPage" asp-page-handler="Logout">Выйти</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </header>
+
+    
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2023 - BookSearch - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

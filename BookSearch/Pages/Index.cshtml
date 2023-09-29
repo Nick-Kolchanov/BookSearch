@@ -1,0 +1,31 @@
+﻿@page
+@using BookSearchAPI.Models;
+@model IndexModel
+@{
+    ViewData["Title"] = "BookSearch";
+    var recommendations = (List<BookRatingPair>)ViewData["Books"];
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h2>@ViewData["NewTitle"]</h2>
+    <table class="table table-sm table-striped table-bordered m-2">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Text</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in recommendations)
+            {
+                <tr>
+                    <td>@d.BookId</td>
+                    <td>@d.Rating</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
