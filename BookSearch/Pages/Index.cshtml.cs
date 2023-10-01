@@ -21,12 +21,26 @@ namespace BookSearch.Pages
 
         public async Task OnGet()
         {
-            using (var client = new HttpClient())
+            ViewData["Books"] = await SendRequest<List<BookRatingPair>>(_configuration["baseApiUrl"] + "/Book/3");
+            ViewData["QuickRecommend"] = new Book { Id = 3, Name = "Унесенные ветром", Description = ""};
+            /*using (var client = new HttpClient())
             {
                 using (var response = await client.GetAsync(_configuration["baseApiUrl"] + "/Book/3"))
                 {
                     string apiResponse = await response.Content.ReadAsStringAsync();
                     ViewData["Books"] = JsonConvert.DeserializeObject<List<BookRatingPair>>(apiResponse);
+                }
+            }*/
+        }
+
+        public async Task<T?> SendRequest<T>(string url)
+        {
+            using (var client = new HttpClient())
+            {
+                using (var response = await client.GetAsync(url))
+                {
+                    string apiResponse = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<T>(apiResponse);
                 }
             }
         }

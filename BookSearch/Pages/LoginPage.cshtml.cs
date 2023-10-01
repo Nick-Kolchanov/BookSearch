@@ -27,6 +27,7 @@ namespace BookSearch.Pages
         public async Task<IActionResult> OnPost(string login, string password)
         {
             var passHash = _securityService.HashPassword(password.ToCharArray());
+
             var user = _dbContext.Users.FirstOrDefault(u => u.Login == login && u.PasswordHash == passHash);
             if (user == null)
             {
