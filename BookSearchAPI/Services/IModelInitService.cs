@@ -2,6 +2,6 @@
 {
     public interface IModelInitService
     {
-        public void InitModel();
+        public void InitModel(BookDbContext dbContext);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BookSearchAPI.Controllers;
 using BookSearchAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookSearchAPI.Services
 {
@@ -14,14 +15,14 @@ namespace BookSearchAPI.Services
             _logger = logger;
         }
 
-        public List<Book> GetPopularBooks()
+        public async Task<List<Book>> GetPopularBooks()
         {
-            return _dbContext.Books.ToList();
+            return await _dbContext.Books.Where(book => book.Id == 1 || book.Id == 2).ToListAsync();
         }
 
-        public List<Book> GetRandomBooks()
+        public async Task<List<Book>> GetTopBooks()
         {
-            throw new NotImplementedException();
+            return await _dbContext.Books.Where(book => book.Id == 3).ToListAsync();
         }
     }
 }

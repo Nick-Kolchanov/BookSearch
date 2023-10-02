@@ -2,7 +2,7 @@ using BookSearchAPI.Services;
 using BookSearchAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.ML;
-using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookSearchAPI.Controllers
 {
@@ -26,18 +26,45 @@ namespace BookSearchAPI.Controllers
             _model = model;
         }
 
-        [HttpGet("{userId:int}")]
-        public async IAsyncEnumerable<BookRatingPair> GetRecommendatons(int userId)
+        [HttpGet("QuickRecommend")]
+        public Book GetQuickRecommend()
         {
-            //var activeprofile = _profileService.GetProfileByID(id);
+            return _context.Books.FirstOrDefault(book => book.Id == 3);
+        }
 
-            //_modelInit.InitModel();
+        [HttpGet("Top")]
+        public async Task<List<Book>> GetTop()
+        {
+            return await _bookService.GetTopBooks();
+        }
+
+        [HttpGet("Popular")]
+        public async Task<List<Book>> GetPopular()
+        {
+            return await _bookService.GetPopularBooks();
+        }
+
+        [HttpGet("Personal/{userId:int}")]
+        public List<BookRatingPair> GetRecommendations(int userId)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return new List<BookRatingPair>();
+            }
+
+            _modelInit.InitModel(_context);
 
             var ratings = new List<BookRatingPair>();
 
             BookRatingPrediction prediction = null;
-            foreach (var book in _bookService.GetPopularBooks())
+            foreach (var book in _context.Books.Include(b => b.UserBookRating))
             {
+                if (book.UserBookRating.Any(ub => ub.UserId == userId))
+                {
+                    continue;
+                }
+
                 prediction = _model.Predict(new BookRating
                 {
                     userId = userId,
@@ -45,14 +72,10 @@ namespace BookSearchAPI.Controllers
                 });
 
                 float normalizedscore = Sigmoid(prediction.Score);
-                yield return new BookRatingPair { BookId = book.Id, Rating = normalizedscore };
+                ratings.Add( new BookRatingPair { BookId = book.Id, Rating = normalizedscore });
             }
-        }
 
-        [HttpPost]
-        public void SetScore(int userId, int bookId)
-        {
-            throw new NotImplementedException();
+            return ratings;
         }
 
         public float Sigmoid(float x)

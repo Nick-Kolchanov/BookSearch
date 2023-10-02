@@ -10,6 +10,15 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<BookDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("Db")));
 builder.Services.AddScoped<ISecurityService, SecurityService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options => {
+    options.IdleTimeout = TimeSpan.FromHours(12);
+    options.Cookie.Name = ".BookSearch.Session";
+    options.Cookie.IsEssential = true;
+});
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

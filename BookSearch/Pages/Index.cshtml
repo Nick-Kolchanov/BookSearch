@@ -3,27 +3,25 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Книгопоиск";
-    var recommendations = (List<BookRatingPair>)ViewData["Books"];
-    var quickRecommend = (Book)ViewData["QuickRecommend"];
 }
 
 <div class="text-center">
     <div class="px-4 py-3 my-5 text-center">
         <h1>Случайная книга дня</h1>
         <img class="d-block mx-auto mb-4" src="~/images/GoneWithTheWind.png" alt="" height="150">
-        <h1 class="display-6 fw-bold">@quickRecommend.Name</h1>
+        <h1 class="display-6 fw-bold">@Model.QuickRecommend.Name</h1>
         <div class="col-lg-6 mx-auto">
-            <p class="lead mb-4">@quickRecommend.Description</p>
+            <p class="lead mb-4">@Model.QuickRecommend.Description</p>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <button type="button" class="btn btn-primary btn-lg px-4 gap-3" asp-page="Book" asp-route-id="@quickRecommend.Id">Подробнее</button>
-                <button type="button" class="btn btn-outline-secondary btn-lg px-4">Купить</button>
+                <a class="btn btn-primary btn-lg px-4 gap-3" asp-page="Book" asp-route-id="@Model.QuickRecommend.Id">Подробнее</a>
+                <a class="btn btn-outline-secondary btn-lg px-4">Купить</a>
             </div>
         </div>
     </div>
     <hr />
-    <button class="btn btn-light">Персональная подборка</button>
-    <button class="btn btn-light">Топ 100 книг</button>
-    <button class="btn btn-light">Популярное</button>
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Personal">Персональная подборка</a>
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Top">Топ 100 книг</a>
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Popular">Популярное</a>
     <hr />
     <h2>Новости</h2>
 </div>

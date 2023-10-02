@@ -1,0 +1,32 @@
+﻿@page
+@using BookSearchAPI.Models;
+@model BookCollectionModel
+@{
+    ViewData["Title"] = "Книгопоиск";
+}
+
+<div>
+    <h2>@Model.CollectionName</h2>
+
+    <br />
+    <br />
+
+    @if (@Model.Books == null || @Model.Books.Count == 0)
+    {
+        <h4>Пусто...</h4>
+    }
+    else
+    {
+        <ul>
+            @foreach (var book in @Model.Books)
+            {
+                <li>
+                    <div>
+                        <h3>@book.Name</h3>
+                        <a class="btn btn-primary btn-lg px-4 gap-3" asp-page="Book" asp-route-id="@book.Id">Подробнее</a>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</div>

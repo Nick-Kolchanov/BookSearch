@@ -7,20 +7,25 @@ namespace BookSearchAPI.Services
     public class ModelInitService : IModelInitService
     {
         private readonly MLContext _mlContext;
-        private readonly BookDbContext _dbContext;
         private readonly ILogger<ModelInitService> _logger;
         private readonly IConfiguration _configurator;
 
-        public ModelInitService(BookDbContext dbContext, ILogger<ModelInitService> logger, IConfiguration configurator)
+        private DateTime _lastModelInit;
+
+        public ModelInitService(ILogger<ModelInitService> logger, IConfiguration configurator)
         {
             _mlContext = new MLContext();
-            _dbContext = dbContext;
             _logger = logger;
             _configurator = configurator;
         }
 
-        public void InitModel()
+        public void InitModel(BookDbContext dbContext)
         {
+            if (_lastModelInit.AddSeconds(int.Parse(_configurator["ModelUpdatingCooldown"])) > DateTime.Now)
+            {
+                return;
+            }
+
             if (!int.TryParse(_configurator["IterationsCount"], out var iterCount) ||
                 !int.TryParse(_configurator["ApproximatonRank"], out var approxRank))
             {
@@ -28,19 +33,19 @@ namespace BookSearchAPI.Services
                 return;
             }
 
-            var data = LoadData();
-            var model = BuildAndTrainModel(data, iterCount, approxRank);
+            _lastModelInit = DateTime.Now;
 
-            //var score = UseModelForSinglePrediction(model);
+            var data = LoadData(dbContext);
+            var model = BuildAndTrainModel(data, iterCount, approxRank);
 
             SaveModel(data.Schema, model);
         }
 
-        IDataView LoadData()
+        IDataView LoadData(BookDbContext dbContext)
         {
             //calling .ToArray() for query execution
             var data = _mlContext.Data.LoadFromEnumerable(
-                _dbContext.Ratings
+                dbContext.Ratings
                 .Select(rating => new BookRating { userId = rating.UserId, bookId = rating.BookId, Label = rating.Rating })
                 .ToArray());
 

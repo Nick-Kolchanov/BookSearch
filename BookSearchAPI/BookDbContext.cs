@@ -7,7 +7,7 @@ namespace BookSearchAPI
     {
         public BookDbContext(DbContextOptions<BookDbContext> options) : base(options)
         {
-            Database.EnsureDeleted();
+            //Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 
@@ -225,5 +225,9 @@ namespace BookSearchAPI
         public DbSet<User> Users { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<UserBookRating> Ratings { get; set; }
+        public DbSet<UserBookReview> Reviews { get; set; }
+        public DbSet<Genre> Genres { get; set; }
+        public DbSet<Author> Authors { get; set; }
+        public DbSet<AgeRestriction> AgeRestrictions { get; set; }
     }
 }

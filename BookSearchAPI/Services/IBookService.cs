@@ -4,7 +4,7 @@ namespace BookSearchAPI.Services
 {
     public interface IBookService
     {
-        public List<Book> GetPopularBooks();
-        public List<Book> GetRandomBooks();
+        public Task<List<Book>> GetPopularBooks();
+        public Task<List<Book>> GetTopBooks();
     }
 }
