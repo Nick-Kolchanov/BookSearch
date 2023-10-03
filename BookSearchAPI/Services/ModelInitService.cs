@@ -7,40 +7,48 @@ namespace BookSearchAPI.Services
     public class ModelInitService : IModelInitService
     {
         private readonly MLContext _mlContext;
-        private readonly BookDbContext _dbContext;
         private readonly ILogger<ModelInitService> _logger;
         private readonly IConfiguration _configurator;
 
-        public ModelInitService(BookDbContext dbContext, ILogger<ModelInitService> logger, IConfiguration configurator)
+        private DateTime _lastModelInit;
+
+        public ModelInitService(ILogger<ModelInitService> logger, IConfiguration configurator)
         {
             _mlContext = new MLContext();
-            _dbContext = dbContext;
             _logger = logger;
             _configurator = configurator;
         }
 
-        public void InitModel()
+        public PredictionEngine<BookRating, BookRatingPrediction> InitModel(BookDbContext dbContext)
         {
+            if (_lastModelInit.AddSeconds(int.Parse(_configurator["ModelUpdatingCooldown"])) > DateTime.Now)
+            {
+                // commented out for testing
+                //return;
+            }
+
             if (!int.TryParse(_configurator["IterationsCount"], out var iterCount) ||
                 !int.TryParse(_configurator["ApproximatonRank"], out var approxRank))
             {
                 _logger.LogError("Error while reading int from Configuration");
-                return;
+                return null;
             }
 
-            var data = LoadData();
+            _lastModelInit = DateTime.Now;
+
+            var data = LoadData(dbContext);
             var model = BuildAndTrainModel(data, iterCount, approxRank);
 
-            //var score = UseModelForSinglePrediction(model);
-
             SaveModel(data.Schema, model);
+
+            return _mlContext.Model.CreatePredictionEngine<BookRating, BookRatingPrediction>(model);
         }
 
-        IDataView LoadData()
+        IDataView LoadData(BookDbContext dbContext)
         {
             //calling .ToArray() for query execution
             var data = _mlContext.Data.LoadFromEnumerable(
-                _dbContext.Ratings
+                dbContext.Ratings
                 .Select(rating => new BookRating { userId = rating.UserId, bookId = rating.BookId, Label = rating.Rating })
                 .ToArray());
 
@@ -68,22 +76,29 @@ namespace BookSearchAPI.Services
             return model;
         }
 
-        void UseModelForSinglePrediction(ITransformer model)
+        void UseModelForPrediction(ITransformer model, BookDbContext context)
         {
             var predictionEngine = _mlContext.Model.CreatePredictionEngine<BookRating, BookRatingPrediction>(model);
 
-            var testInput = new BookRating { userId = 3, bookId = 3 };
+            var testInput1 = new BookRating { userId = 3, bookId = 1 };
+            var testInput2 = new BookRating { userId = 3, bookId = 2 };
+            var testInput3 = new BookRating { userId = 3, bookId = 3 };
 
-            var movieRatingPrediction = predictionEngine.Predict(testInput);
-
-            _logger.LogInformation(movieRatingPrediction.Score.ToString());
+            _logger.LogInformation(predictionEngine.Predict(testInput1).Score.ToString());
+            _logger.LogInformation(predictionEngine.Predict(testInput2).Score.ToString());
+            _logger.LogInformation(predictionEngine.Predict(testInput3).Score.ToString());
         }
 
         void SaveModel(DataViewSchema trainingDataViewSchema, ITransformer model)
         {
-            var modelPath = Path.Combine(Environment.CurrentDirectory, _configurator["MLModelPath"]);
+            //var modelPath = Path.Combine(Environment.CurrentDirectory, _configurator["MLModelPath"]);
 
-            _mlContext.Model.Save(model, trainingDataViewSchema, modelPath);
+            using (var stream = new FileStream(_configurator["MLModelPath"], FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                _mlContext.Model.Save(model, trainingDataViewSchema, stream);
+            }
+                
+            _logger.LogInformation("Saved");
         }
     }
 }

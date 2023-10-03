@@ -1,0 +1,21 @@
+﻿@page
+@using BookSearchAPI.Models;
+@model CollectionsPageModel
+@{
+    ViewData["Title"] = "Книгопоиск";
+}
+
+<div>
+    <h1 class="display-6 fw-bold">Популярные подборки</h1>
+    
+    <br />
+    <br />
+
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Personal">Персональная подборка</a>
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Top">Топ 100</a>
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Popular">Популярное</a>
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Genres">Подборки по жанрам</a>
+    <hr />
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Read">Прочитанное</a>
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Wishlist">Список желаемого</a>
+</div>

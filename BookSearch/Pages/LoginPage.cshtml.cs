@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 using BookSearchAPI;
 using BookSearch.Services;
+using BookSearchAPI.Models;
 
 namespace BookSearch.Pages
 {
@@ -27,6 +28,7 @@ namespace BookSearch.Pages
         public async Task<IActionResult> OnPost(string login, string password)
         {
             var passHash = _securityService.HashPassword(password.ToCharArray());
+
             var user = _dbContext.Users.FirstOrDefault(u => u.Login == login && u.PasswordHash == passHash);
             if (user == null)
             {
@@ -36,6 +38,7 @@ namespace BookSearch.Pages
 
             List<Claim> claims = new List<Claim>();
             claims.Add(new Claim(ClaimTypes.Name, user.Login));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
 
             ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             ClaimsPrincipal principal = new ClaimsPrincipal(identity);

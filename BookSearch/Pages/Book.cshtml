@@ -1,0 +1,84 @@
+﻿@page
+@using BookSearchAPI.Models;
+@model BookModel
+@{
+    ViewData["Title"] = "Книгопоиск";
+}
+
+<div>
+    <div class="px-4 py-3 my-5">
+        <img class="d-block mx-auto mb-4" src="~/images/GoneWithTheWind.png" alt="" height="300">
+        <h1 class="display-6 fw-bold">@Model.Book.Name</h1>
+    </div>
+    <div>
+        <h4>@Model.Book.Description</h4>
+        <h4>Рейтинг: @Model.BookRating / 10</h4>
+    </div>
+
+    @if (@Model.Book.UserBookReview == null || @Model.Book.UserBookReview.Count == 0)
+    {
+        <h4>Отзывов нет</h4>
+    }
+    else
+    {
+        <h4>Отзывы:</h4>
+        <ul>
+            @foreach (var review in @Model.Book.UserBookReview)
+            {
+                <li>@review.Review</li>
+            }
+        </ul>
+    }
+    
+    <hr />
+    <button class="btn btn-light">Купить</button>
+    <button class="btn btn-light">Читать</button>
+    <br />
+    <br />
+    <button class="btn btn-light">Прочитана</button>
+    <button class="btn btn-light">Добавить в список желаемого</button>
+    <hr />
+
+    @if (User.Identity?.IsAuthenticated ?? false)
+    {
+        @if (@Model.UserRating != null)
+        {
+            <h4>Ваша оценка (0-10):</h4>
+            <h3>@Model.UserRating</h3>
+        }
+
+        @if (@Model.UserReview != null && @Model.UserReview != string.Empty)
+        {
+            <h4>Ваша рецензия:</h4>
+            <h3>@Model.UserReview</h3>
+        }
+        else
+        {
+            <form method="post" asp-page-handler="Review">
+                @if (@Model.UserRating == null)
+                {
+                    <div>Ваша оценка (0-10):</div>
+                    <input type="number" max="10" min="0" name="rating">
+                    <br>
+                }
+
+                <div>Рецензия:</div>
+                <textarea rows="10" cols="60" name="review"></textarea>
+                <input type="hidden" name="bookId" value="@Model.Book.Id">
+                <button type="submit" class="btn btn-light">Оценить</button>
+            </form>
+        }
+
+        @if (@Model.UserRating != null)
+        {
+            <form method="post" asp-page-handler="ReviewDelete">
+                <input type="hidden" name="bookId" value="@Model.Book.Id">
+                <button type="submit" class="btn btn-danger">Удалить рецензию / оценку</button>
+            </form>
+        }
+    }
+    else
+    {
+        <a class="btn btn-light" asp-page="LoginPage">Оценить</a>
+    }
+</div>

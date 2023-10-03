@@ -2,30 +2,26 @@
 @using BookSearchAPI.Models;
 @model IndexModel
 @{
-    ViewData["Title"] = "BookSearch";
-    var recommendations = (List<BookRatingPair>)ViewData["Books"];
+    ViewData["Title"] = "Книгопоиск";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <h2>@ViewData["NewTitle"]</h2>
-    <table class="table table-sm table-striped table-bordered m-2">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Text</th>
-                <th>Category</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var d in recommendations)
-            {
-                <tr>
-                    <td>@d.BookId</td>
-                    <td>@d.Rating</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="px-4 py-3 my-5 text-center">
+        <h1>Случайная книга дня</h1>
+        <img class="d-block mx-auto mb-4" src="~/images/GoneWithTheWind.png" alt="" height="150">
+        <h1 class="display-6 fw-bold">@Model.QuickRecommend.Name</h1>
+        <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4">@Model.QuickRecommend.Description</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <a class="btn btn-primary btn-lg px-4 gap-3" asp-page="Book" asp-route-id="@Model.QuickRecommend.Id">Подробнее</a>
+                <a class="btn btn-outline-secondary btn-lg px-4">Купить</a>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Personal">Персональная подборка</a>
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Top">Топ 100 книг</a>
+    <a class="btn btn-light" asp-page="BookCollection" asp-page-handler="Popular">Популярное</a>
+    <hr />
+    <h2>Новости</h2>
 </div>

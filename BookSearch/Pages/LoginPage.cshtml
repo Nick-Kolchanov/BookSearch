@@ -3,26 +3,24 @@
 @{
 }
 
-<div>
-    <div>
-        <div class="col-md-10 mx-auto col-lg-5">
-            <h1>Книгопоиск</h1>
-            <form class="p-4 p-md-5 border rounded-3 bg-light" method="post">
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="floatingInput" name="login" required>
-                    <label for="floatingInput">Логин</label>
-                </div>
-                <div class="form-floating mb-3">
-                    <input type="password" class="form-control" id="floatingPassword" name="password" required>
-                    <label for="floatingPassword">Пароль</label>
-                </div>
+<div class="d-flex align-items-center">
+    <div class="container text-center col-md-10 mx-auto col-lg-5 ">
+        <br />
+        <form class="p-4 p-md-5 border rounded-3 bg-light" method="post">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="floatingInput" name="login" required>
+                <label for="floatingInput">Логин</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="floatingPassword" name="password" required>
+                <label for="floatingPassword">Пароль</label>
+            </div>
 
-                <div asp-validation-summary="ModelOnly"></div>
+            <div asp-validation-summary="ModelOnly"></div>
 
-                <button class="w-100 btn btn-lg btn-primary" type="submit">Войти</button>
-                <hr class="my-4">
-                <small class="text-muted">При входе вы соглашаетесь с условиями использования.</small>
-            </form>
-        </div>
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Войти</button>
+            <hr class="my-4">
+            <small class="text-muted">При входе вы соглашаетесь с условиями использования.</small>
+        </form>
     </div>
 </div>
