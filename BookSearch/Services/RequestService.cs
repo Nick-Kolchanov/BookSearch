@@ -18,6 +18,11 @@ namespace BookSearch.Services
                 using (var response = await client.GetAsync(_configuration["baseApiUrl"] + url))
                 {
                     string apiResponse = await response.Content.ReadAsStringAsync();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return default(T?);
+                    }
+
                     return JsonConvert.DeserializeObject<T>(apiResponse);
                 }
             }

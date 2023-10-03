@@ -1,21 +1,21 @@
 ﻿@page
 @using BookSearchAPI.Models;
-@model IndexModel
+@model SettingsModel
 @{
     ViewData["Title"] = "Книгопоиск";
 }
 
 <div class="text-center">
     <form method="post">
-        <input id="ch1" type="checkbox" name="selectedGenres" value="1" />
+        <input id="ch1" type="checkbox" name="selectedGenres" value="1" checked="@Model.SelectedGenres.Contains(1)"/>
         <label for="ch1">Фантастика</label>
 
-        <input id="ch2" type="checkbox" name="selectedGenres" value="2" />
+        <input id="ch2" type="checkbox" name="selectedGenres" value="2" checked="@Model.SelectedGenres.Contains(2)" />
         <label for="ch2">Детектив</label>
         
-        <input id="ch3" type="checkbox" name="selectedGenres" value="3" />
+        <input id="ch3" type="checkbox" name="selectedGenres" value="3" checked="@Model.SelectedGenres.Contains(3)" />
         <label for="ch3">Исторический роман</label>
-
+        
         <button type="submit">Сохранить</button>
     </form>
 </div>

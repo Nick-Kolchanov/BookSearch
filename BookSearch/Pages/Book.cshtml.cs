@@ -13,7 +13,7 @@ namespace BookSearch.Pages
         private readonly BookDbContext _context;
 
         public Book Book { get; set; }
-        public double BookRating { get; set; }
+        public string BookRating { get; set; }
         public double? UserRating { get; set; }
         public string? UserReview { get; set; }
 
@@ -32,7 +32,7 @@ namespace BookSearch.Pages
             }
 
             Book = book;
-            BookRating = book.UserBookRating.Average(r => r.Rating);
+            BookRating = book.UserBookRating.Average(r => r.Rating).ToString("0.00");
 
             if (HttpContext.User.TryGetId(out var userId))
             {

@@ -23,6 +23,12 @@
                 <li>
                     <div>
                         <h3>@book.Name</h3>
+
+                        @if (Model.BookScores != null)
+                        {
+                            <h3> - @Model.BookScores.First(bs => bs.BookId == book.Id).Rating</h3>
+                        }
+
                         <a class="btn btn-primary btn-lg px-4 gap-3" asp-page="Book" asp-route-id="@book.Id">Подробнее</a>
                     </div>
                 </li>

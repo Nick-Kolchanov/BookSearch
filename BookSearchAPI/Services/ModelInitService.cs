@@ -19,18 +19,19 @@ namespace BookSearchAPI.Services
             _configurator = configurator;
         }
 
-        public void InitModel(BookDbContext dbContext)
+        public PredictionEngine<BookRating, BookRatingPrediction> InitModel(BookDbContext dbContext)
         {
             if (_lastModelInit.AddSeconds(int.Parse(_configurator["ModelUpdatingCooldown"])) > DateTime.Now)
             {
-                return;
+                // commented out for testing
+                //return;
             }
 
             if (!int.TryParse(_configurator["IterationsCount"], out var iterCount) ||
                 !int.TryParse(_configurator["ApproximatonRank"], out var approxRank))
             {
                 _logger.LogError("Error while reading int from Configuration");
-                return;
+                return null;
             }
 
             _lastModelInit = DateTime.Now;
@@ -39,6 +40,8 @@ namespace BookSearchAPI.Services
             var model = BuildAndTrainModel(data, iterCount, approxRank);
 
             SaveModel(data.Schema, model);
+
+            return _mlContext.Model.CreatePredictionEngine<BookRating, BookRatingPrediction>(model);
         }
 
         IDataView LoadData(BookDbContext dbContext)
@@ -73,22 +76,29 @@ namespace BookSearchAPI.Services
             return model;
         }
 
-        void UseModelForSinglePrediction(ITransformer model)
+        void UseModelForPrediction(ITransformer model, BookDbContext context)
         {
             var predictionEngine = _mlContext.Model.CreatePredictionEngine<BookRating, BookRatingPrediction>(model);
 
-            var testInput = new BookRating { userId = 3, bookId = 3 };
+            var testInput1 = new BookRating { userId = 3, bookId = 1 };
+            var testInput2 = new BookRating { userId = 3, bookId = 2 };
+            var testInput3 = new BookRating { userId = 3, bookId = 3 };
 
-            var movieRatingPrediction = predictionEngine.Predict(testInput);
-
-            _logger.LogInformation(movieRatingPrediction.Score.ToString());
+            _logger.LogInformation(predictionEngine.Predict(testInput1).Score.ToString());
+            _logger.LogInformation(predictionEngine.Predict(testInput2).Score.ToString());
+            _logger.LogInformation(predictionEngine.Predict(testInput3).Score.ToString());
         }
 
         void SaveModel(DataViewSchema trainingDataViewSchema, ITransformer model)
         {
-            var modelPath = Path.Combine(Environment.CurrentDirectory, _configurator["MLModelPath"]);
+            //var modelPath = Path.Combine(Environment.CurrentDirectory, _configurator["MLModelPath"]);
 
-            _mlContext.Model.Save(model, trainingDataViewSchema, modelPath);
+            using (var stream = new FileStream(_configurator["MLModelPath"], FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                _mlContext.Model.Save(model, trainingDataViewSchema, stream);
+            }
+                
+            _logger.LogInformation("Saved");
         }
     }
 }

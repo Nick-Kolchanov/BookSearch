@@ -48,12 +48,11 @@ namespace BookSearchAPI.Controllers
         public List<BookRatingPair> GetRecommendations(int userId)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id == userId);
-            if (user == null)
+            var predictionEngine = _modelInit.InitModel(_context);
+            if (user == null || predictionEngine == null)
             {
                 return new List<BookRatingPair>();
             }
-
-            _modelInit.InitModel(_context);
 
             var ratings = new List<BookRatingPair>();
 
@@ -65,14 +64,18 @@ namespace BookSearchAPI.Controllers
                     continue;
                 }
 
-                prediction = _model.Predict(new BookRating
+                prediction = predictionEngine.Predict(new BookRating
                 {
                     userId = userId,
                     bookId = book.Id
                 });
 
-                float normalizedscore = Sigmoid(prediction.Score);
-                ratings.Add( new BookRatingPair { BookId = book.Id, Rating = normalizedscore });
+                //float normalizedscore = Sigmoid(prediction.Score);
+                if (float.IsNaN(prediction.Score))
+                {
+                    prediction.Score = 0;
+                }
+                ratings.Add( new BookRatingPair { BookId = book.Id, Rating = prediction.Score });
             }
 
             return ratings;

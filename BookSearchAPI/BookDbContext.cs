@@ -176,14 +176,14 @@ namespace BookSearchAPI
                     Id = 1,
                     UserId = 1,
                     BookId = 1,
-                    Rating = 5
+                    Rating = 10
                 },
                 new UserBookRating
                 {
                     Id = 2,
                     UserId = 1,
                     BookId = 2,
-                    Rating = 5
+                    Rating = 10
                 }, new UserBookRating
                 {
                     Id = 3,
@@ -207,7 +207,7 @@ namespace BookSearchAPI
                     Id = 6,
                     UserId = 2,
                     BookId = 3,
-                    Rating = 5
+                    Rating = 10
                 }
             );
 

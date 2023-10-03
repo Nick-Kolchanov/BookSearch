@@ -15,6 +15,7 @@ namespace BookSearch.Pages
         private readonly IRequestService _requestService;
 
         public List<Book> Books { get; set; }
+        public List<BookRatingPair> BookScores { get; set; }
         public string CollectionName { get; set; }
 
         public BookCollectionModel(ILogger<BookCollectionModel> logger, BookDbContext context, IRequestService requestService)
@@ -37,17 +38,18 @@ namespace BookSearch.Pages
             var genres = _context.Users.First(u => u.Id == userId).LikedGenres;
 
             var recommendedBooks = await _requestService.SendRequest<List<BookRatingPair>>($"Book/Personal/{userId}");
-            if (recommendedBooks == null || recommendedBooks.Count == 0)
+            if (recommendedBooks == null || recommendedBooks.Count == 0 || recommendedBooks.All(b => b.Rating == 0))
             {
                 return new RedirectToPageResult("BookCollection", "Top");
             }
+            BookScores = recommendedBooks;
 
-            recommendedBooks.Sort((b1, b2) => b1.Rating.CompareTo(b2.Rating));
+            recommendedBooks.Sort((b1, b2) => b2.Rating.CompareTo(b1.Rating));
 
             var recommendByGenres = recommendedBooks
-                .Select(recommendation => _context.Books
+                .Select(recommendation => _context.Books.Include(b => b.Genres).ThenInclude(g => g.Users)
                 .First(b => b.Id == recommendation.BookId))
-                .Where(recommendation => recommendation.Genres.Any(g => g.Users.Select(u => u.Id).Contains(userId)));
+                .Where(recommendation => recommendation.Genres.Any(g => g.Users.Select(u => u.Id).Contains(userId))).ToList();
 
             if (recommendByGenres.Count() >= count)
             {
@@ -55,11 +57,12 @@ namespace BookSearch.Pages
                 return Page();
             }
 
-            var recommendedNotByGenre = recommendedBooks.Select(recommendation => _context.Books.First(b => b.Id == recommendation.BookId)).Where(recommendation =>
-                recommendation.Genres.Any(g => !g.Users.Select(u => u.Id).Contains(userId))).Take(count - recommendByGenres.Count());
+            var recommendedNotByGenre = recommendedBooks
+                .Select(recommendation => _context.Books.First(b => b.Id == recommendation.BookId))
+                .Where(recommendation => !recommendByGenres.Contains(recommendation)).Take(count - recommendByGenres.Count()).ToList();
 
-            recommendByGenres.ToList().AddRange(recommendedNotByGenre);
             Books = recommendByGenres.ToList();
+            Books.AddRange(recommendedNotByGenre);
 
             return Page();
         }

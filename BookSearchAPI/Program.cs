@@ -11,9 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<BookDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("Db")));
-builder.Services.AddSingleton<IModelInitService, ModelInitService>();
+builder.Services.AddTransient<IModelInitService, ModelInitService>();
 builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddPredictionEnginePool<BookRating, BookRatingPrediction>().FromFile(builder.Configuration["MLModelPath"]);
+builder.Services.AddPredictionEnginePool<BookRating, BookRatingPrediction>().FromFile(builder.Configuration["MLModelPath"], true);
 
 var app = builder.Build();
 

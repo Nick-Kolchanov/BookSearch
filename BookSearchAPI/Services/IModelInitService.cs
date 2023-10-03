@@ -1,7 +1,10 @@
-﻿namespace BookSearchAPI.Services
+﻿using BookSearchAPI.Models;
+using Microsoft.ML;
+
+namespace BookSearchAPI.Services
 {
     public interface IModelInitService
     {
-        public void InitModel(BookDbContext dbContext);
+        public PredictionEngine<BookRating, BookRatingPrediction> InitModel(BookDbContext dbContext);
     }
 }
